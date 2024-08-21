@@ -1,3 +1,4 @@
+output/
 venv/
 temp/
 .rpa/
@@ -15,4 +16,3 @@ testrun/*
 .~lock*
 *.pkl
 virtualenv/
-output/*
