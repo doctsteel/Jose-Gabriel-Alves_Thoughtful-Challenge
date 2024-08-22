@@ -18,7 +18,7 @@ The crawler started as a minimal robocorp robot as a template, and from there I 
 
 It gets the parameters as work items from robocorp, starts the task, goes to https://www.reuters.com, clicks the search button, types the keyword received in the work item, starts crawling through the search results, saving the date, title, category, image and image url, whether it has money on the title and how many times the keyword was appearing in the title.
 
-As there are lots of counter measures to crawling and scraping in these big sites, it works 90% of the time and fails if encounters a captcha screen.
+As there are lots of counter measures to crawling and scraping in these big sites, it works 90% of the time and fails if it encounters a captcha screen.
 
 ## How to make it work
 
