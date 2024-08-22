@@ -1,4 +1,3 @@
-from selenium.webdriver import ChromeOptions
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -15,12 +14,16 @@ class CustomSelenium:
         options.add_argument('--disable-web-security')
         options.add_argument("--start-maximized")
         options.add_argument('--remote-debugging-port=9222')
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-search-engine-choice-screen")
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         return options
 
     def set_webdriver(self):
-        self.options = self.set_chrome_options()
-        self._driver = webdriver.Chrome(options=self.options)
+        #self.options = self.set_chrome_options()
+        self._driver = webdriver.Chrome(options = 
+                                        webdriver.ChromeOptions().add_argument('--disable-search-engine-choice-screen')
+                                        )#options=self.options)
         self._driver.set_window_position(0, 0)
         print("WebDriver initialized successfully.")
 
