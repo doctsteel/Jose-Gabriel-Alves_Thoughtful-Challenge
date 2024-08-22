@@ -3,7 +3,7 @@
 
 tasks:
   Run Task:
-    shell: python -m robocorp.tasks run tasks.py --keyword Nubank --months 4
+    shell: python -m robocorp.tasks run tasks.py
 
 environmentConfigs:
   - environment_windows_amd64_freeze.yaml

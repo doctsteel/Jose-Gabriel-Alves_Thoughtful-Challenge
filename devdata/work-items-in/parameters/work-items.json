@@ -1,8 +1,8 @@
 [
   {
       "payload": {
-         "keyword": "Nubank",
-         "months": 4
+         "KEYWORD": "Nubank",
+         "MONTHS": 4
       }
   }
 ]
