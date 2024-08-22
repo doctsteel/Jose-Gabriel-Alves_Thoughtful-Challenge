@@ -8,8 +8,8 @@ class CustomSelenium:
     def set_chrome_options(self):
         options = webdriver.ChromeOptions()
         # options.add_argument('--headless')
-        # options.add_argument('--no-sandbox')
-        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument('--no-sandbox')
+       #  options.add_argument("--disable-dev-shm-usage")
         return options
 
     def set_webdriver(self):
