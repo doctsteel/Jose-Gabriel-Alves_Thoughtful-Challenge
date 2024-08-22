@@ -1,20 +1,25 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-
+import platform
 
 class CustomSelenium:
 
     def set_chrome_options(self):
         options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-       #  options.add_argument("--disable-dev-shm-usage")
+        if platform.system() != 'Darwin':
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("–-disable-popup-blocking")
+            options.add_argument("–-ignore-certificate-errors")
+            #options.add_argument("--proxy-server=http://186.215.87.194:6009")
+        # options.add_argument("--remote-debugging-pipe")
         return options
 
     def set_webdriver(self):
-        options = self.set_chrome_options()
-        self._driver = webdriver.Chrome(options= options)
+        chrome_options = self.set_chrome_options()
+        self._driver = webdriver.Chrome(options=chrome_options)
         self._driver.set_window_position(400, 0)
         print("WebDriver initialized successfully.")
 

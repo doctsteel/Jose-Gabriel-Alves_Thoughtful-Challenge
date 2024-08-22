@@ -3,37 +3,54 @@ from dateutil.relativedelta import relativedelta
 from main.CustomSelenium import CustomSelenium
 from main.ExcelManager import ExcelManager
 from datetime import datetime
+import logging
 import time
+import sys
 import re
 import os
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(name)s - %(message)s",
+    handlers=[logging.FileHandler("webcrawling.log"), logging.StreamHandler()],
+)
+
 
 class WebCrawling:
     def __init__(self, keyword, months=1):
         self.driver = CustomSelenium()
-        self.file_manager = ExcelManager('output/files/news.xlsx')
+        self.file_manager = ExcelManager('output/news.xlsx')
         self.driver.set_webdriver()
         self.keyword = keyword
         self.months = months
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def main_task(self):
         self.go_to_website()
         self.fill_search_field()
         self.process_search_results()
         self.file_manager.close()
-        print("Done.")
+        self.logger.info("Done.")
 
     def go_to_website(self):
-        self.driver.open_url("https://www.reuters.com")
+        self.driver.open_url("https://www.reuters.com", "output/website.png")
+        self.logger.info("Website opened. Sleeping for a minute.")
 
     def fill_search_field(self):
-        search_icon = self.driver.find_element_by_css_selector("[aria-label='Open search bar']")
-        search_icon.click()
-        search_input = self.driver.find_element_by_css_selector("[data-testid='FormField:input']")
-        search_input.send_keys(self.keyword)
-        send_search_button = self.driver.find_element_by_css_selector("[aria-label='Search']")
-        send_search_button.click()
-        self.driver.implicitly_wait(5)
-
+        self.driver.implicitly_wait(10)
+        try:
+            search_icon = self.driver.find_element_by_css_selector("[aria-label='Open search bar']")
+            search_icon.click()
+            search_input = self.driver.find_element_by_css_selector("[data-testid='FormField:input']")
+            search_input.send_keys(self.keyword)
+            send_search_button = self.driver.find_element_by_css_selector("[aria-label='Search']")
+            send_search_button.click()
+            self.driver.implicitly_wait(5)
+        except NoSuchElementException:
+            self.logger.info("We've been blocked. Stopping search.")
+            sys.exit(1)
+            return
+    
     def process_search_results(self):
         # in order:
         # 1: check if the news is inside the specified date range, if so, save it to the excel file
@@ -63,21 +80,21 @@ class WebCrawling:
         # find the list of search results
         news = self.driver.find_elements('li[class^="search-results__item"]')
         if not news:
-            print("No news found.")
+            self.logger.info("No news found.")
             return
         for item in news:
             date =  self.driver.find_element_in_element(item, "time").get_attribute("datetime")[:10]
-            print("Date: ", date)
+            self.logger.info("Date: ", date)
             if not self.is_date_in_range(date):
-                print("Date out of range, stopping search.")
+                self.logger.debug("Date out of range, stopping search.")
                 break
             else:
-                print("Date in range, processing news.")
+                self.logger.debug("Date in range, processing news.")
 
             title = self.driver.find_element_in_element(
                 item, "[data-testid='Heading']"
             ).text
-            print("Title:" + title)
+            self.logger.info("Title:" + title)
 
             try:
                 picture_element = self.driver.find_element_in_element(
@@ -85,30 +102,30 @@ class WebCrawling:
                 )
                 picture_filename = os.path.basename(picture_element.get_attribute("src"))
                 self.download_picture(picture_element, picture_filename)
-                print("Picture filename:" + picture_filename)
+                self.logger.info("Picture filename:" + picture_filename)
             except NoSuchElementException:
-                print("Picture filename: None")
+                self.logger.info("Picture filename: None")
                 picture_filename = "None"
 
             try:
                 category = self.driver.find_element_in_element(
                     item, "[data-testid='Label']"
                 ).text
-                print("Category:" + category)
+                self.logger.debug("Category:" + category)
             except NoSuchElementException:
-                print("Category: None")
+                self.logger.debug("Category: None")
                 category = "None"
 
             hit_count = title.lower().count("nubank")
-            print("Hit count:" + str(hit_count))
+            self.logger.debug("Hit count:" + str(hit_count))
 
             has_money_in_title = self.money_regex(title)
-            print("Has money in title:" + str(has_money_in_title))
+            self.logger.debug("Has money in title:" + str(has_money_in_title))
 
             self.file_manager.write_to_row([title, date, category, picture_filename, hit_count, has_money_in_title])
 
         else:
-            print("Page completed, checking next page.")
+            self.logger.info("Page completed, checking next page.")
             try:
                 next_page = self.driver.find_element_by_css_selector(
                     "[aria-label^='Next stories']"
@@ -124,7 +141,7 @@ class WebCrawling:
                 self.driver.implicitly_wait(5)
                 self.process_search_results()
             except NoSuchElementException:
-                print("No more pages to check.")
+                self.logger.info("No more pages to check.")
                 return
             
 

@@ -1,60 +1,58 @@
-# Template: Python - Minimal
+# ThoughtfulAI Challenge - Basic News Webcrawler
 
-This template leverages the new [Python framework](https://github.com/robocorp/robocorp), the [libraries](https://github.com/robocorp/robocorp/blob/master/docs/README.md#python-libraries) from to same project as well.
+Webcrawler that goes to Reuters' homepage and tries to search for news inside a time period, given a keyword and the months to search.
 
-The template provides you with the basic structure of a Python project: logging out of the box and controlling your tasks without fiddling with the base Python stuff. The environment contains the most used libraries, so you do not have to start thinking about those right away. 
+## Initial thoughts
 
-👉 Other templates are available as well via our tooling and on our [Portal](https://robocorp.com/portal/tag/template)
+The program has the following hard requisites:
 
-## Running
+1. ### Hard python/selenium only. 
+   - I tried implementing a custom selenium wrapper here to use just what I needed from it, and with that, came some other problems: It was running locally and in an EC2 instance I used, but not in robocorp workers as the challenge asked for. Debugging it further revealed that the robocorp workers were getting blocked by the website ¯\\__(ツ)\__/¯
+  
+2. ### No APIs or Requests
+   -  Yeah, self explanatory. Instead of downloading the news thumbnails I went from screenshotting them.
 
-#### VS Code
-1. Get [Robocorp Code](https://robocorp.com/docs/developer-tools/visual-studio-code/extension-features) -extension for VS Code.
-1. You'll get an easy-to-use side panel and powerful command-palette commands for running, debugging, code completion, docs, etc.
+## How it works
 
-#### Command line
+The crawler started as a minimal robocorp robot as a template, and from there I implemented the pure selenium approach the best I could.
 
-1. [Get RCC](https://github.com/robocorp/rcc?tab=readme-ov-file#getting-started)
-1. Use the command: `rcc run`
+It gets the parameters as work items from robocorp, starts the task, goes to https://www.reuters.com, clicks the search button, types the keyword received in the work item, starts crawling through the search results, saving the date, title, category, image and image url, whether it has money on the title and how many times the keyword was appearing in the title.
 
-## Results
+As there are lots of counter measures to crawling and scraping in these big sites, it works 90% of the time and fails if encounters a captcha screen.
 
-🚀 After running the bot, check out the `log.html` under the `output` -folder.
+## How to make it work
 
-## Dependencies
+At first I thought I had to create its own python virtual env, but robocorp's VSCode extension does that for you quickly enough. You just gotta type the dependencies in the conda.yaml at the repo's root.
 
-We strongly recommend getting familiar with adding your dependencies in [conda.yaml](conda.yaml) to control your Python dependencies and the whole Python environment for your automation.
+To run the code:
 
-<details>
-  <summary>🙋‍♂️ "Why not just pip install...?"</summary>
+1. Install [Robocorp Code VSCode Extension](https://robocorp.com/docs/visual-studio-code)
 
-Think of [conda.yaml](conda.yaml) as an equivalent of the requirements.txt, but much better. 👩‍💻 With `conda.yaml`, you are not just controlling your PyPI dependencies; you control the complete Python environment, which makes things repeatable and easy.
+2. Clone this repository your preferred way
+3. Open the cloned repo locally on github
+4. Use the extension to Run Task.
 
-👉 You will probably need to run your code on another machine quite soon, so by using `conda.yaml`:
-- You can avoid `Works on my machine` -cases
-- You do not need to manage Python installations on all the machines
-- You can control exactly which version of Python your automation will run on 
-  - You'll also control the pip version to avoid dep. resolution changes
-- No need for venv, pyenv, ... tooling and knowledge sharing inside your team.
-- Define dependencies in conda.yaml, let our tooling do the heavy lifting.
-- You get all the content of [conda-forge](https://prefix.dev/channels/conda-forge) without any extra tooling
+If the crawler doesnt get blocked, your terminal will look like this when finished:
 
-> Dive deeper with [these](https://github.com/robocorp/rcc/blob/master/docs/recipes.md#what-is-in-condayaml) resources.
+![Terminal output](console_pass_example.png)
 
-</details>
-<br/>
+Your results are stored in the `/output` forlder in the root of the repository.
 
-> The full power of [rpaframework](https://robocorp.com/docs/python/rpa-framework) -libraries is also available on Python as a backup while we implement the new Python libraries.
+Now, the results are for `"KEYWORD"= 'Nubank'` and `"MONTHS" = 24`. 
+To change it:
 
-## What now?
+- Open `work-items.json` inside `root/dev-data/parameters/`
+![Payload](work_item_example.png)
+- Change `"Nubank"`to `"Whatever keyword you want crawled"` 
+- And change `24`to the number of months you want.
 
-🚀 Now, go get'em
 
-Start writing Python and remember that the AI/LLM's out there are getting really good and creating Python code specifically.
 
-👉 Try out [Robocorp ReMark 💬](https://chat.robocorp.com)
+### Thanks for your time!
 
-For more information, do not forget to check out the following:
-- [Robocorp Documentation -site](https://robocorp.com/docs)
-- [Portal for more examples](https://robocorp.com/portal)
-- Follow our main [robocorp -repository](https://github.com/robocorp/robocorp) as it is the main location where we developed the libraries and the framework.
+
+#### Cat tax:
+
+![Sofia my beloved](sofia_cat.jpeg)
+
+
